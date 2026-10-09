@@ -1,0 +1,234 @@
+cat ./.config/cybercats-zsh/local/zsh_history
+nvim .config/cybercats-zsh/general/
+exec zsh
+nvim .config/cybercats-zsh/general/keybinds.zsh
+task "Draft proposal for SpecKit Workshop" prio:H due:tomorrow
+task add "Draft proposal for SpecKit Workshop" prio:H due:tomorrow
+nvim test.md
+nvim dontsave.md
+nvim docs/OneDrive-Docs/Technical\ Excellence\ Playbook/Chapter\ 11\ â€ƒ³\ Documentation\ Standards\ for\ Integration\ Design\ .docx
+task add "Ask josefin about BankID solution owner" +arcon
+task list 
+task 10 done
+task 19 done
+task 2 done
+task 11 done
+task 18 note "we're in agreement as the latest chat last week. It will be moved to the accidental layer"
+task 18 annotate "we're in agreement as the latest chat last week. It will be moved to the accidental layer"
+task 
+task 17 done
+task 15 annotate "The details from the Syncify side is approved after today's meeting. Still awaiting Inio"
+task 19 prio:H due:tomorrow
+task 19 edit prio:H due:tomorrow
+task 19 modify prio:H due:tomorrow
+task 9 done
+task 2 modifu due:tuesday
+task 2 modify due:tuesday
+task 3 modify due:tuesday
+task 2 annotate "Awaiting the specific flows to look into data schema for the IDP"
+tas
+task 15 annotate "Details unclear, need to discuss with owner"
+task 15 due:monday
+task 15 modify +arcon
+clera
+cd 
+nvim docs/OneDrive-Docs/Technical\ Excellence\ Playbook/Technical\ Excellence\ Playbook\ Chapter\ 12\ -\ Documentation\ Standards\ System\ Documentation.md
+screen
+screen ls
+screen -a obsidian
+screen -a 39256.obsidian
+screen -r obsdian
+screen -r 39256.obsdian
+nvim downloads/silex_scoring_komplett_dokumentation.md
+screen -ls
+nvim docs/idp-mvp-architecture.md
+task add "Ask about if someone can be the integration workstream owner for Inio to Syncify and Rekondis"
+task 19 modify prio:H due:tomorrow arcon
+task
+task 19
+task 19 modify prio:H due:tomorrow "Description changed from 'Ask about if someone can be the integration workstream owner for Inio to Syncify and Rekondis'"
+task 19 modify prio:H due:tomorrow "ARCON: Description changed from 'Ask about if someone can be the integration workstream owner for Inio to Syncify and Rekondis'"
+screen -r
+cd .config/i
+git history
+git --help
+git log
+mkdir config_playground
+cp .config/ config_playground
+cp .config/ config_playground -r
+cp .config/ config_playground/ -r
+sudo cp .config/ config_playground/ -r
+cd config_playground
+cd .config
+vim histofake.py
+vim config_playground
+explorer
+mv config_playground Documents
+mv config_playground Documents/
+cp config_playground Documents/
+cp config_playground Documents/-r
+cp R config_playground Documents/
+cp -r config_playground Documents/
+cp -r ~/config_playground ./config_playground
+rm -rf config_playground
+cd docs/config_playground
+vim histamine.yaml
+python -m venv .
+python -m venv ./venv
+ls 
+mv venv .venv
+ls -a
+mv .venv .old_venv
+source .venv
+python --v
+python -version
+python -v
+source .venv/Scripts/activate
+cler
+npm update
+npm upgrade
+npm -v
+sudo npm install --global @microsoft/power-apps-cli
+sudo npm install --global @microsoft/power-apps
+cd docs
+cd repos
+pa app init --display-name "spaghetti-bowl"
+sudo apt update
+sudo apt install libsecret-1-0
+sudo apt install libsecret-1-0 libsecret-1-dev
+ldconfig -p | grep libsecret
+sudo apt install gnome-keyring
+mv package-lock.json ./spaghetti-fork
+mv power.config.json ./spaghetti-fork
+mv spaghetti-fork spaghetti-fork-bkup
+mkdir spaghetti-fork
+pa app init
+node --version
+which npm
+which nvm
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+apt sudo apt remove nodejs
+sudo apt remove nodejs
+sudo apt autoremove
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | bash
+command -v nvm
+nvm install 20
+nvm use 20
+nvm alias default 20
+npm install --global @microsoft/power-apps-cli
+npm install --global @microsoft/power-apps
+cd docs/repos
+cd  tools
+cd spaghetti-fork
+rm power.config.json
+pa app init --display-name "spaghetti-fork"
+vim power.config.json
+npx degit github:microsoft/PowerAppsCodeApps/templates/vite my-app\
+
+mv my-app/* ./
+cd my-app
+la -la
+mv .gitignore ../
+ls -la
+cd ..
+rm my-app
+rm my-app -r
+ls
+npm install
+pa connection create --connector shared_sharepointonline
+pa connection list
+pa connection list-datasets --connector "shared_sharepointonline" --connection-id "c641353a0f6040d8ab5c189d31691c74"
+pa connection list-datasets --help
+pa connection list-datasets --connector "shared_sharepointonline" --connection-id "c641353a0f6040d8ab5c189d31691c74" --dataset "https://groupoffice365.sharepoint.com/sites/SE_PlatformEngineering"
+pa connection list-tables --help
+pa app add data-source --connector "shared_sharepointonline" --connection-id "c641353a0f6040d8ab5c189d31691c74" --dataset "https://groupoffice365.sharepoint.com/sites/SE_PlatformEngineering" --table "ab1544a7-a4ef-4897-9e42-80c93b2478fe"
+git status
+git init
+git commit -m "initial working power app"
+pa connection list-tables --connector "shared_sharepointonline" --connection-id "c641353a0f6040d8ab5c189d31691c74" --dataset "https://groupoffice365.sharepoint.com/sites/SE_PlatformEngineering"
+pa app run
+npm run dev
+git add .
+git commit -m "feat:pa-service add a simple scenario for pa service"
+npm install tailwindcss @tailwindcss/cli
+npx @tailwindcss/cli -i ./src/input.css -o ./src/output.css --watch
+npx @tailwindcss/cli -i ./src/App.css -o ./src/tw.css --watch
+q
+clear
+wsl --kill Obsidian\
+
+killall obsidian
+obsidian
+: 1790810635:0;ls
+: 1790810650:0;ls -la
+: 1790810679:0;cd docs/repos
+: 1790810680:0;ls
+: 1790810687:0;cd utils
+: 1790810687:0;ls
+: 1790810688:0;cd --
+: 1790810695:0;cd docs/repos
+: 1790810695:0;ls
+: 1790810697:0;cd tools
+: 1790810698:0;ls
+: 1790810707:0;cd ..
+: 1790810711:0;ls corporate-survival-kit
+: 1790810712:0;ls
+: 1790810715:0;cd corporate-survival-kit
+: 1790810716:0;ls
+: 1790810721:0;cd ..
+: 1790810721:0;ls
+: 1790810728:0;cd 'SLS Mess\
+'
+: 1790810732:0;cd ..
+: 1790810732:0;ls
+: 1790810735:0;cd 
+: 1790810736:0;ls
+: 1790810739:0;cd -la
+: 1790810742:0;ls -a
+: 1790810748:0;ls -la
+: 1790810909:0;cd home
+: 1790810911:0;ls
+: 1790810918:0;ls -la
+: 1790810973:0;obsidian
+: 1790811102:0;ls -la
+: 1790811128:0;cd IdeaProjects
+: 1790811129:0;ls
+: 1790811135:0;cd ..
+: 1790811137:0;ls WebstormProjects
+: 1790811138:0;ls
+: 1790811150:0;cd WebstormProjects
+: 1790811152:0;ls
+: 1790811154:0;cd ..
+: 1790811154:0;ls
+: 1790811168:0;cd Documents
+: 1790811169:0;ls
+: 1790811185:0;cd config_playground
+: 1790811186:0;ls
+: 1790811189:0;cd ..
+: 1790811256:0;cd 
+: 1790811256:0;ls
+: 1790811268:0;vim package-lock.json
+: 1790811289:0;vim .zshrc
+: 1790811306:0;cd .config
+: 1790811306:0;ls
+: 1790811318:0;cd ..
+: 1790811342:0;cp .config docs/cycat.cofig.folder 
+: 1790811347:0;cp .config docs/cycat.cofig.folder r
+: 1790811352:0;cp .config docs/cycat.cofig.folder -r
+: 1790811433:0;ls
+: 1790811566:0;cd docs
+: 1790811568:0;ls -la
+: 1790811580:0;cd notes
+: 1790811581:0;ls
+: 1790811584:0;ls -la
+: 1790811652:0;cd ..
+: 1790811653:0;ls
+: 1790811668:0;mkdir lame_notes
+: 1790811680:0;cp *.txt lame_notes
+: 1791410948:0;cd 
+: 1791410950:0;ls
+: 1791410954:0;ls -la
+: 1791411016:0;mkdir docs/mac_move
+: 1791411029:0;cp .* docs/mac_move
+: 1791411049:0;cp .* docs/mac_move -r
