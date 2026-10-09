@@ -1,0 +1,50 @@
+name = "CCKit"
+id = "cckit"
+version = "1.0.0"
+description = "Install and manage Homebrew packages as part of your portable CYBERCATS environment."
+
+aliases = []
+
+[entrypoint]
+file = "cckit.sh"
+function = "cybercats_cckit"
+
+[[commands]]
+name = "install <formula>"
+description = "Install and track a Homebrew formula."
+
+[[commands]]
+name = "install --cask <cask>"
+description = "Install and track a Homebrew cask."
+
+[[commands]]
+name = "uninstall <formula>"
+description = "Uninstall and stop tracking a Homebrew formula."
+
+[[commands]]
+name = "uninstall --cask <cask>"
+description = "Uninstall and stop tracking a Homebrew cask."
+
+[[commands]]
+name = "search <query>"
+description = "Search Homebrew."
+
+[[commands]]
+name = "info <package>"
+description = "Show Homebrew package information."
+
+[[commands]]
+name = "update"
+description = "Update Homebrew package information."
+
+[[commands]]
+name = "upgrade [package]"
+description = "Upgrade Homebrew packages."
+
+[[commands]]
+name = "list"
+description = "List Homebrew-installed packages."
+
+[[commands]]
+name = "--manifest"
+description = "Show packages currently managed by CCKit."
