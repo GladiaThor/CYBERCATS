@@ -1,0 +1,31 @@
+name = "CYBERCATS Power Installer"
+id = "ccpower"
+version = "1.0.0"
+description = "Install and manage CYBERCATS Powers."
+
+aliases = []
+
+[entrypoint]
+file = "ccpower.zsh"
+function = "cybercats_ccpower"
+
+[[variables]]
+name = "CYBERCATS_HOME"
+description = "Root directory of the CYBERCATS installation."
+required = true
+
+[[commands]]
+name = "--install <git repository>"
+description = "Install a Power from a Git repository."
+
+[[commands]]
+name = "--remove <power>"
+description = "Remove an installed Power."
+
+[[commands]]
+name = "--update <power>"
+description = "Update an installed Power."
+
+[[commands]]
+name = "--list"
+description = "List built-in and installed Powers."

@@ -35,7 +35,7 @@ for power in "$CC_ROOT"/powers/builtins/*.zsh; do
 done
 
 if [[ "$CC_SAFE_MODE" != true ]]; then
-  for power in "$CC_ROOT"/powers/custom/*.zsh(N); do
+  for power in "$CC_ROOT"/powers/installed/*.zsh(N); do
     source "$power"
   done
 fi

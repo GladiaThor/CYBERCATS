@@ -1,4 +1,4 @@
-export CC_ROOT="$HOME/cybercats-zsh"
+export CC_ROOT="$HOME/.cybercats"
 source "$CC_ROOT/main.zsh"
 
 # Your non-brew tools are bad and they should feel bad (and be ignored)

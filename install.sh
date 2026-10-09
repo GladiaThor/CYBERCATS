@@ -1,7 +1,24 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
+export CC_ROOT="$HOME/.cybercats"
 
+
+SKIP_TOOLS=false
+SKIP_ZSH_UTILS=false
+
+
+for ARGUMENT in "$@"; do
+    case "${ARGUMENT}" in
+        --skiptools)
+            SKIP_TOOLS=true
+            ;;
+
+        --skiputils)
+            SKIP_ZSH_UTILS=true
+            ;;
+    esac
+done
 
 
 echo
@@ -34,7 +51,7 @@ FILES_TO_INSTALL=(
 
 DIRECTORIES_TO_INSTALL=(
     ".config"
-    "cybercats-zsh"
+    ".cybercats"
     ".starship"
 )
 
@@ -55,7 +72,7 @@ ZSH_UTILS=(
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-ARCHIVE_SCRIPT="${REPO_DIR}/cybercats-zsh/powers/builtins/archivist.sh"
+ARCHIVE_SCRIPT="${REPO_DIR}/.cybercats/powers/builtins/archivist.sh"
 
 BACKUP_ROOT="${HOME}/CYBERCATS_PRE_INSTALL_BACKUP"
 
@@ -177,6 +194,7 @@ echo
 # =============================================================================
 # Terminal Tools
 # =============================================================================
+if [[ "${SKIP_TOOLS}" == false ]]; then
 echo "Installing terminal tools."
 
 for TOOL_ENTRY in "${CORE_TOOLS[@]}"; do
@@ -231,9 +249,15 @@ echo
 echo "Core tools installed."
 echo
 
+else
+    echo "Skipping core terminal tools."
+    echo
+fi
+
 # =============================================================================
 # ZSH Utils
 # =============================================================================
+if [[ "${SKIP_ZSH_UTILS}" == false ]]; then
 
 echo "Installing zsh utils."
 
@@ -255,6 +279,39 @@ done
 echo
 echo "ZSH utils installed."
 echo
+
+else
+    echo "Skipping Zsh utilities."
+    echo
+fi
+
+# =============================================================================
+# Installing Builtin Powers
+# =============================================================================
+
+CCPOWER_SOURCE="${HOME}/.cybercats/powers/src/ccpower/ccpower.zsh"
+CCPOWER_MANIFEST="${HOME}/.cybercats/powers/src/ccpower/power.toml"
+CCPOWER_BUILTIN="${HOME}/.cybercats/powers/builtins/ccpower.zsh"
+
+echo "Installing builtin powers."
+
+mkdir -p "${HOME}/.cybercats/powers/builtins"
+
+source "${CCPOWER_SOURCE}"
+
+echo "Generating Wrapper for CCPower"
+
+cybercats_ccpower_generate_wrapper \
+    "${CCPOWER_MANIFEST}" \
+    "${CCPOWER_BUILTIN}"
+
+if [[ ! -f "${CCPOWER_BUILTIN}" ]]; then
+    echo "ERROR: Failed to generate CCPower built-in wrapper."
+    exit 1
+fi
+
+echo "✓ CCPower Installed."
+
 
 
 # =============================================================================

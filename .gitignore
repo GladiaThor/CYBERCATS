@@ -1,2 +1,7 @@
 .DS_Store
-./cybercats-zsh/powers/custom/*
+cybercats-zsh/powers/custom/**
+
+cybercats-zsh/powers/installed/*
+cybercats-zsh/powers/src/*
+!cybercats-zsh/powers/src/ccpower/
+!cybercats-zsh/powers/src/ccpower/**
