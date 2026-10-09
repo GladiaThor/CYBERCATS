@@ -70,9 +70,16 @@ ZSH_UTILS=(
     "zsh-syntax-highlighting"
 )
 
+BUILTIN_POWERS=(
+    "ccpower"
+    "ccarchivist"
+)
+
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-ARCHIVE_SCRIPT="${REPO_DIR}/.cybercats/powers/builtins/archivist.sh"
+CCARCHIVIST_SOURCE="${REPO_DIR}/.cybercats/powers/src/ccarchivist/ccarchivist.sh"
+
+source "${CCARCHIVIST_SOURCE}"
 
 BACKUP_ROOT="${HOME}/CYBERCATS_PRE_INSTALL_BACKUP"
 
@@ -103,12 +110,6 @@ for DIRECTORY in "${DIRECTORIES_TO_INSTALL[@]}"; do
     fi
 done
 
-if [[ ! -f "${ARCHIVE_SCRIPT}" ]]; then
-    echo "ERROR: Archivist not found:"
-    echo "  ${ARCHIVE_SCRIPT}"
-    exit 1
-fi
-
 echo "✓ Installation files validated."
 echo
 
@@ -136,7 +137,8 @@ for DIRECTORY in "${DIRECTORIES_TO_INSTALL[@]}"; do
     ARCHIVE_SOURCES+=("${HOME}/${DIRECTORY}")
 done
 
-"${ARCHIVE_SCRIPT}" \
+cybercats_ccarchivist \
+    --archive \
     "${BACKUP_ROOT}" \
     "${ARCHIVE_SOURCES[@]}"
 
@@ -288,30 +290,44 @@ fi
 # =============================================================================
 # Installing Builtin Powers
 # =============================================================================
+source "${HOME}/.cybercats/powers/src/ccpower/ccpower.zsh"
 
-CCPOWER_SOURCE="${HOME}/.cybercats/powers/src/ccpower/ccpower.zsh"
-CCPOWER_MANIFEST="${HOME}/.cybercats/powers/src/ccpower/power.toml"
-CCPOWER_BUILTIN="${HOME}/.cybercats/powers/builtins/ccpower.zsh"
 
 echo "Installing builtin powers."
 
-mkdir -p "${HOME}/.cybercats/powers/builtins"
+POWER_ROOT="${HOME}/.cybercats/powers"
 
-source "${CCPOWER_SOURCE}"
+mkdir -p "${POWER_ROOT}/builtins"
 
-echo "Generating Wrapper for CCPower"
+# Bootstrap the wrapper generator itself.
+source "${POWER_ROOT}/src/ccpower/ccpower.zsh"
 
-cybercats_ccpower_generate_wrapper \
-    "${CCPOWER_MANIFEST}" \
-    "${CCPOWER_BUILTIN}"
+for POWER in "${BUILTIN_POWERS[@]}"; do
 
-if [[ ! -f "${CCPOWER_BUILTIN}" ]]; then
-    echo "ERROR: Failed to generate CCPower built-in wrapper."
-    exit 1
-fi
+    POWER_MANIFEST="${POWER_ROOT}/src/${POWER}/power.toml"
+    POWER_BUILTIN="${POWER_ROOT}/builtins/${POWER}.zsh"
 
-echo "✓ CCPower Installed."
+    echo "Installing ${POWER}."
 
+    if [[ ! -f "${POWER_MANIFEST}" ]]; then
+        echo "ERROR: Manifest not found for ${POWER}:"
+        echo "  ${POWER_MANIFEST}"
+        exit 1
+    fi
+
+    echo "Generating wrapper for ${POWER}."
+
+    cybercats_ccpower_generate_wrapper \
+        "${POWER_MANIFEST}" \
+        "${POWER_BUILTIN}"
+
+    if [[ ! -f "${POWER_BUILTIN}" ]]; then
+        echo "ERROR: Failed to generate ${POWER} built-in wrapper."
+        exit 1
+    fi
+
+    echo "✓ ${POWER} installed."
+done
 
 
 # =============================================================================

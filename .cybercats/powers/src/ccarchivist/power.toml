@@ -1,0 +1,14 @@
+name = "CCArchivist"
+id = "ccarchivist"
+version = "1.0.0"
+description = "Create timestamped archives of files and directories."
+
+aliases = []
+
+[entrypoint]
+file = "ccarchivist.sh"
+function = "cybercats_ccarchivist"
+
+[[commands]]
+name = "--archive <archive-root> <source> [source...]"
+description = "Move files and directories into a timestamped archive."
