@@ -1,7 +1,7 @@
 name = "CCKit"
 id = "cckit"
 version = "1.0.0"
-description = "Install and manage Homebrew packages as part of your portable CYBERCATS environment."
+description = "Install Homebrew software and organise it into portable CYBERCATS packs."
 
 aliases = []
 
@@ -10,20 +10,32 @@ file = "cckit.sh"
 function = "cybercats_cckit"
 
 [[commands]]
-name = "install <formula>"
+name = "install <formula> [-p <pack>]"
 description = "Install and track a Homebrew formula."
 
 [[commands]]
-name = "install --cask <cask>"
+name = "install --cask <cask> [-p <pack>]"
 description = "Install and track a Homebrew cask."
 
 [[commands]]
-name = "uninstall <formula>"
-description = "Uninstall and stop tracking a Homebrew formula."
+name = "pack <package> -p <pack>"
+description = "Add an already installed package to one or more packs."
 
 [[commands]]
-name = "uninstall --cask <cask>"
-description = "Uninstall and stop tracking a Homebrew cask."
+name = "unpack <package> -p <pack>"
+description = "Remove a package from a pack without uninstalling it."
+
+[[commands]]
+name = "uninstall <package>"
+description = "Uninstall a package and remove it from all packs."
+
+[[commands]]
+name = "packs"
+description = "List available CCKit packs."
+
+[[commands]]
+name = "show <pack>"
+description = "Show the contents of a pack."
 
 [[commands]]
 name = "search <query>"
@@ -35,7 +47,7 @@ description = "Show Homebrew package information."
 
 [[commands]]
 name = "update"
-description = "Update Homebrew package information."
+description = "Update Homebrew."
 
 [[commands]]
 name = "upgrade [package]"
@@ -43,8 +55,4 @@ description = "Upgrade Homebrew packages."
 
 [[commands]]
 name = "list"
-description = "List Homebrew-installed packages."
-
-[[commands]]
-name = "--manifest"
-description = "Show packages currently managed by CCKit."
+description = "List packages installed through Homebrew."

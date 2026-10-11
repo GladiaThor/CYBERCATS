@@ -3,15 +3,25 @@
 # =============================================================================
 # CCKit
 #
-# CYBERCATS-managed Homebrew interface.
+# Homebrew package management with CYBERCATS pack tracking.
 #
-# Normal Homebrew operations are passed through to brew.
-# Install and uninstall operations additionally maintain a portable CYBERCATS
-# manifest containing the packages explicitly managed through CCKit. This lets
-# you separate what you want to have migratable and what you just have for a 
-# specific machine.
+# Every package managed by CCKit belongs to the "local" pack.
+#
+# Packages may additionally belong to any number of named packs:
+#
+#   cckit install pyenv -p python
+#   cckit install node -p react_web -p javascript
+#
+# Existing Homebrew packages can be adopted:
+#
+#   cckit pack neovim -p terminal
+#
 # =============================================================================
 
+
+# =============================================================================
+# Entrypoint
+# =============================================================================
 
 cybercats_cckit() {
     local command="${1:-}"
@@ -28,8 +38,24 @@ cybercats_cckit() {
             cybercats_cckit_uninstall "$@"
             ;;
 
-        --manifest)
-            cybercats_cckit_manifest
+        pack)
+            shift
+            cybercats_cckit_pack "$@"
+            ;;
+
+        unpack)
+            shift
+            cybercats_cckit_unpack "$@"
+            ;;
+
+        packs)
+            shift
+            cybercats_cckit_packs "$@"
+            ;;
+
+        show)
+            shift
+            cybercats_cckit_show "$@"
             ;;
 
         search|info|update|upgrade|list|doctor|cleanup|outdated)
@@ -52,56 +78,213 @@ cybercats_cckit() {
 
 
 # =============================================================================
+# Paths
+# =============================================================================
+
+cybercats_cckit_root() {
+    echo "${HOME}/.cybercats/cckit"
+}
+
+
+cybercats_cckit_packs_root() {
+    echo "$(cybercats_cckit_root)/packs"
+}
+
+
+cybercats_cckit_pack_path() {
+    local pack_name="${1}"
+
+    echo "$(cybercats_cckit_packs_root)/${pack_name}.toml"
+}
+
+
+# =============================================================================
 # Install
 # =============================================================================
 
 cybercats_cckit_install() {
     if [[ $# -eq 0 ]]; then
         echo "Usage:"
-        echo "  cckit install <formula>"
-        echo "  cckit install --cask <cask>"
+        echo "  cckit install <formula> [-p <pack>]"
+        echo "  cckit install --cask <cask> [-p <pack>]"
         return 1
     fi
 
     local is_cask=false
+
+    local brew_arguments=()
     local packages=()
-    local argument
+    local packs=()
 
-    for argument in "$@"; do
-        case "${argument}" in
-            --cask)
-                is_cask=true
-                ;;
-
-            -*)
-                # Preserve other Homebrew flags, but don't treat them as packages.
-                ;;
-
-            *)
-                packages+=("${argument}")
-                ;;
-        esac
-    done
+    cybercats_cckit_parse_package_arguments \
+        brew_arguments \
+        packages \
+        packs \
+        is_cask \
+        "$@"
 
     if [[ ${#packages[@]} -eq 0 ]]; then
         echo "ERROR: No package specified."
         return 1
     fi
 
-    if ! brew install "$@"; then
+    if ! brew install "${brew_arguments[@]}"; then
         echo "ERROR: Homebrew installation failed."
         return 1
     fi
 
-    for package in "${packages[@]}"; do
-        if [[ "${is_cask}" == true ]]; then
-            cybercats_cckit_track_cask "${package}"
-        else
-            cybercats_cckit_track_formula "${package}"
-        fi
-    done
+    local package
+    local pack
 
-    return 0
+    for package in "${packages[@]}"; do
+
+        # Everything managed by CCKit belongs to local.
+        cybercats_cckit_add_to_pack \
+            "local" \
+            "${package}" \
+            "${is_cask}"
+
+        for pack in "${packs[@]}"; do
+            cybercats_cckit_add_to_pack \
+                "${pack}" \
+                "${package}" \
+                "${is_cask}"
+        done
+
+    done
+}
+
+
+# =============================================================================
+# Pack
+#
+# Adopt something that is already installed through Homebrew.
+# =============================================================================
+
+cybercats_cckit_pack() {
+    if [[ $# -eq 0 ]]; then
+        echo "Usage:"
+        echo "  cckit pack <formula> -p <pack>"
+        echo "  cckit pack --cask <cask> -p <pack>"
+        return 1
+    fi
+
+    local is_cask=false
+
+    local ignored_brew_arguments=()
+    local packages=()
+    local packs=()
+
+    cybercats_cckit_parse_package_arguments \
+        ignored_brew_arguments \
+        packages \
+        packs \
+        is_cask \
+        "$@"
+
+    if [[ ${#packages[@]} -eq 0 ]]; then
+        echo "ERROR: No package specified."
+        return 1
+    fi
+
+    if [[ ${#packs[@]} -eq 0 ]]; then
+        echo "ERROR: pack requires at least one -p or --packname."
+        return 1
+    fi
+
+    local package
+    local pack
+
+    for package in "${packages[@]}"; do
+
+        if [[ "${is_cask}" == true ]]; then
+
+            if ! brew list --cask "${package}" >/dev/null 2>&1; then
+                echo "ERROR: Cask is not installed:"
+                echo "  ${package}"
+                continue
+            fi
+
+        else
+
+            if ! brew list --formula "${package}" >/dev/null 2>&1; then
+                echo "ERROR: Formula is not installed:"
+                echo "  ${package}"
+                continue
+            fi
+
+        fi
+
+        # Adopting something into CCKit also makes it part of local.
+        cybercats_cckit_add_to_pack \
+            "local" \
+            "${package}" \
+            "${is_cask}"
+
+        for pack in "${packs[@]}"; do
+            cybercats_cckit_add_to_pack \
+                "${pack}" \
+                "${package}" \
+                "${is_cask}"
+        done
+
+        echo "✓ Packed ${package}."
+
+    done
+}
+
+
+# =============================================================================
+# Unpack
+# =============================================================================
+
+cybercats_cckit_unpack() {
+    if [[ $# -eq 0 ]]; then
+        echo "Usage:"
+        echo "  cckit unpack <formula> -p <pack>"
+        echo "  cckit unpack --cask <cask> -p <pack>"
+        return 1
+    fi
+
+    local is_cask=false
+
+    local ignored_brew_arguments=()
+    local packages=()
+    local packs=()
+
+    cybercats_cckit_parse_package_arguments \
+        ignored_brew_arguments \
+        packages \
+        packs \
+        is_cask \
+        "$@"
+
+    if [[ ${#packs[@]} -eq 0 ]]; then
+        echo "ERROR: unpack requires at least one -p or --packname."
+        return 1
+    fi
+
+    local package
+    local pack
+
+    for package in "${packages[@]}"; do
+
+        for pack in "${packs[@]}"; do
+
+            if [[ "${pack}" == "local" ]]; then
+                echo "ERROR: Packages cannot be unpacked from local."
+                echo "Use 'cckit uninstall ${package}' instead."
+                continue
+            fi
+
+            cybercats_cckit_remove_from_pack \
+                "${pack}" \
+                "${package}" \
+                "${is_cask}"
+
+        done
+
+    done
 }
 
 
@@ -118,67 +301,276 @@ cybercats_cckit_uninstall() {
     fi
 
     local is_cask=false
+
+    local brew_arguments=()
     local packages=()
-    local argument
+    local ignored_packs=()
 
-    for argument in "$@"; do
-        case "${argument}" in
-            --cask)
-                is_cask=true
-                ;;
+    cybercats_cckit_parse_package_arguments \
+        brew_arguments \
+        packages \
+        ignored_packs \
+        is_cask \
+        "$@"
 
-            -*)
-                ;;
-
-            *)
-                packages+=("${argument}")
-                ;;
-        esac
-    done
-
-    if [[ ${#packages[@]} -eq 0 ]]; then
-        echo "ERROR: No package specified."
-        return 1
-    fi
-
-    if ! brew uninstall "$@"; then
+    if ! brew uninstall "${brew_arguments[@]}"; then
         echo "ERROR: Homebrew uninstall failed."
         return 1
     fi
 
+    local package
+
     for package in "${packages[@]}"; do
-        if [[ "${is_cask}" == true ]]; then
-            cybercats_cckit_untrack_cask "${package}"
-        else
-            cybercats_cckit_untrack_formula "${package}"
-        fi
+        cybercats_cckit_remove_from_all_packs \
+            "${package}" \
+            "${is_cask}"
+    done
+}
+
+
+# =============================================================================
+# Argument parsing
+#
+# Bash does not have references, so these array names are passed by name and
+# populated using eval.
+#
+# Supported CCKit arguments:
+#
+#   -p <pack>
+#   --packname <pack>
+#
+# Everything else is passed through to Brew.
+# =============================================================================
+
+cybercats_cckit_parse_package_arguments() {
+    local brew_array_name="${1}"
+    local packages_array_name="${2}"
+    local packs_array_name="${3}"
+    local is_cask_variable_name="${4}"
+
+    shift 4
+
+    local argument
+
+    while [[ $# -gt 0 ]]; do
+        argument="${1}"
+
+        case "${argument}" in
+
+            -p|--packname)
+
+                if [[ $# -lt 2 ]]; then
+                    echo "ERROR: ${argument} requires a pack name."
+                    return 1
+                fi
+
+                cybercats_cckit_validate_pack_name "${2}" || return 1
+
+                eval "${packs_array_name}+=(\"\${2}\")"
+
+                shift 2
+                ;;
+
+            --cask)
+
+                eval "${is_cask_variable_name}=true"
+                eval "${brew_array_name}+=(\"--cask\")"
+
+                shift
+                ;;
+
+            -*)
+
+                eval "${brew_array_name}+=(\"\${argument}\")"
+
+                shift
+                ;;
+
+            *)
+
+                eval "${brew_array_name}+=(\"\${argument}\")"
+                eval "${packages_array_name}+=(\"\${argument}\")"
+
+                shift
+                ;;
+
+        esac
+    done
+}
+
+
+# =============================================================================
+# Packs
+# =============================================================================
+
+cybercats_cckit_packs() {
+    local packs_root
+    packs_root="$(cybercats_cckit_packs_root)"
+
+    mkdir -p "${packs_root}"
+
+    echo
+    echo "CCKit Packs"
+    echo "==========="
+    echo
+
+    local pack_file
+    local found=false
+
+    for pack_file in "${packs_root}/"*.toml; do
+        [[ -f "${pack_file}" ]] || continue
+
+        basename "${pack_file}" .toml
+        found=true
     done
 
-    return 0
+    if [[ "${found}" == false ]]; then
+        echo "No packs found."
+    fi
+
+    echo
+}
+
+
+cybercats_cckit_show() {
+    local pack_name="${1:-}"
+
+    if [[ -z "${pack_name}" ]]; then
+        echo "Usage:"
+        echo "  cckit show <pack>"
+        return 1
+    fi
+
+    local pack_file
+    pack_file="$(cybercats_cckit_pack_path "${pack_name}")"
+
+    if [[ ! -f "${pack_file}" ]]; then
+        echo "ERROR: Pack not found:"
+        echo "  ${pack_name}"
+        return 1
+    fi
+
+    echo
+    echo "Pack: ${pack_name}"
+    echo
+
+    echo "Formulae:"
+    cybercats_cckit_read_pack_entries \
+        "${pack_file}" \
+        "formulae"
+
+    echo
+    echo "Casks:"
+    cybercats_cckit_read_pack_entries \
+        "${pack_file}" \
+        "casks"
+
+    echo
 }
 
 
 # =============================================================================
-# Manifest
+# Pack modification
 # =============================================================================
 
-cybercats_cckit_manifest_path() {
-    echo "${HOME}/.cybercats/state/cckit.toml"
-}
+cybercats_cckit_add_to_pack() {
+    local pack_name="${1}"
+    local package="${2}"
+    local is_cask="${3}"
 
+    cybercats_cckit_validate_pack_name "${pack_name}" || return 1
 
-cybercats_cckit_ensure_manifest() {
-    local manifest
-    manifest="$(cybercats_cckit_manifest_path)"
+    local section="formulae"
 
-    mkdir -p "$(dirname "${manifest}")"
+    if [[ "${is_cask}" == true ]]; then
+        section="casks"
+    fi
 
-    if [[ -f "${manifest}" ]]; then
+    cybercats_cckit_ensure_pack "${pack_name}"
+
+    local pack_file
+    pack_file="$(cybercats_cckit_pack_path "${pack_name}")"
+
+    if cybercats_cckit_pack_contains \
+        "${pack_file}" \
+        "${section}" \
+        "${package}"
+    then
         return 0
     fi
 
-    cat > "${manifest}" <<'EOF'
-version = 1
+    cybercats_cckit_rewrite_pack \
+        "${pack_file}" \
+        "${section}" \
+        "add" \
+        "${package}"
+}
+
+
+cybercats_cckit_remove_from_pack() {
+    local pack_name="${1}"
+    local package="${2}"
+    local is_cask="${3}"
+
+    local pack_file
+    pack_file="$(cybercats_cckit_pack_path "${pack_name}")"
+
+    [[ -f "${pack_file}" ]] || return 0
+
+    local section="formulae"
+
+    if [[ "${is_cask}" == true ]]; then
+        section="casks"
+    fi
+
+    cybercats_cckit_rewrite_pack \
+        "${pack_file}" \
+        "${section}" \
+        "remove" \
+        "${package}"
+}
+
+
+cybercats_cckit_remove_from_all_packs() {
+    local package="${1}"
+    local is_cask="${2}"
+
+    local packs_root
+    packs_root="$(cybercats_cckit_packs_root)"
+
+    local pack_file
+
+    for pack_file in "${packs_root}/"*.toml; do
+        [[ -f "${pack_file}" ]] || continue
+
+        local pack_name
+        pack_name="$(basename "${pack_file}" .toml)"
+
+        cybercats_cckit_remove_from_pack \
+            "${pack_name}" \
+            "${package}" \
+            "${is_cask}"
+    done
+}
+
+
+# =============================================================================
+# Pack creation
+# =============================================================================
+
+cybercats_cckit_ensure_pack() {
+    local pack_name="${1}"
+
+    local pack_file
+    pack_file="$(cybercats_cckit_pack_path "${pack_name}")"
+
+    [[ -f "${pack_file}" ]] && return 0
+
+    mkdir -p "$(cybercats_cckit_packs_root)"
+
+    cat > "${pack_file}" <<EOF
+name = "${pack_name}"
+id = "${pack_name}"
 
 [formulae]
 packages = []
@@ -189,118 +581,51 @@ EOF
 }
 
 
-cybercats_cckit_manifest() {
-    cybercats_cckit_ensure_manifest
+cybercats_cckit_validate_pack_name() {
+    local pack_name="${1}"
 
-    local manifest
-    manifest="$(cybercats_cckit_manifest_path)"
-
-    echo
-    echo "CCKit Managed Packages"
-    echo "======================"
-    echo
-
-    echo "Formulae:"
-    cybercats_cckit_read_packages "${manifest}" "formulae"
-
-    echo
-    echo "Casks:"
-    cybercats_cckit_read_packages "${manifest}" "casks"
-
-    echo
-}
-
-
-# =============================================================================
-# Tracking
-# =============================================================================
-
-cybercats_cckit_track_formula() {
-    cybercats_cckit_track_package "formulae" "${1}"
-}
-
-
-cybercats_cckit_track_cask() {
-    cybercats_cckit_track_package "casks" "${1}"
-}
-
-
-cybercats_cckit_untrack_formula() {
-    cybercats_cckit_untrack_package "formulae" "${1}"
-}
-
-
-cybercats_cckit_untrack_cask() {
-    cybercats_cckit_untrack_package "casks" "${1}"
-}
-
-
-cybercats_cckit_track_package() {
-    local section="${1}"
-    local package="${2}"
-
-    cybercats_cckit_ensure_manifest
-
-    local manifest
-    manifest="$(cybercats_cckit_manifest_path)"
-
-    if cybercats_cckit_package_is_tracked "${manifest}" "${section}" "${package}"; then
-        return 0
+    if [[ ! "${pack_name}" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+        echo "ERROR: Invalid pack name:"
+        echo "  ${pack_name}"
+        echo
+        echo "Pack names may contain letters, numbers, underscores and hyphens."
+        return 1
     fi
-
-    cybercats_cckit_write_package_list \
-        "${manifest}" \
-        "${section}" \
-        "add" \
-        "${package}"
-}
-
-
-cybercats_cckit_untrack_package() {
-    local section="${1}"
-    local package="${2}"
-
-    cybercats_cckit_ensure_manifest
-
-    local manifest
-    manifest="$(cybercats_cckit_manifest_path)"
-
-    cybercats_cckit_write_package_list \
-        "${manifest}" \
-        "${section}" \
-        "remove" \
-        "${package}"
 }
 
 
 # =============================================================================
-# Manifest helpers
+# Pack reading
 # =============================================================================
 
-cybercats_cckit_package_is_tracked() {
-    local manifest="${1}"
+cybercats_cckit_pack_contains() {
+    local pack_file="${1}"
     local section="${2}"
     local package="${3}"
 
-    cybercats_cckit_read_packages_raw "${manifest}" "${section}" |
+    cybercats_cckit_read_pack_entries_raw \
+        "${pack_file}" \
+        "${section}" |
         grep -Fxq "${package}"
 }
 
 
-cybercats_cckit_read_packages() {
-    local manifest="${1}"
+cybercats_cckit_read_pack_entries() {
+    local pack_file="${1}"
     local section="${2}"
 
-    local found=false
     local package
+    local found=false
 
     while IFS= read -r package; do
-        [[ -z "${package}" ]] && continue
+        [[ -n "${package}" ]] || continue
 
         echo "  ${package}"
         found=true
     done < <(
-        cybercats_cckit_read_packages_raw "${manifest}" "${section}"
+        cybercats_cckit_read_pack_entries_raw \
+            "${pack_file}" \
+            "${section}"
     )
 
     if [[ "${found}" == false ]]; then
@@ -309,8 +634,8 @@ cybercats_cckit_read_packages() {
 }
 
 
-cybercats_cckit_read_packages_raw() {
-    local manifest="${1}"
+cybercats_cckit_read_pack_entries_raw() {
+    local pack_file="${1}"
     local requested_section="${2}"
 
     awk \
@@ -318,28 +643,31 @@ cybercats_cckit_read_packages_raw() {
         '
         BEGIN {
             section = ""
-            in_packages = 0
+            reading_packages = 0
         }
 
         /^[[:space:]]*\[/ {
             line = $0
+
             gsub(/^[[:space:]]*\[/, "", line)
             gsub(/\][[:space:]]*$/, "", line)
 
             section = line
-            in_packages = 0
+            reading_packages = 0
+
             next
         }
 
         section == requested_section &&
         /^[[:space:]]*packages[[:space:]]*=/ {
-            in_packages = 1
+
+            reading_packages = 1
 
             line = $0
             sub(/^[^=]*=[[:space:]]*/, "", line)
 
             if (line ~ /\]/) {
-                in_packages = 0
+                reading_packages = 0
             }
 
             gsub(/[\[\]"]/, "", line)
@@ -349,6 +677,7 @@ cybercats_cckit_read_packages_raw() {
 
             for (i = 1; i <= count; i++) {
                 item = items[i]
+
                 gsub(/^[[:space:]]+/, "", item)
                 gsub(/[[:space:]]+$/, "", item)
 
@@ -360,11 +689,12 @@ cybercats_cckit_read_packages_raw() {
             next
         }
 
-        section == requested_section && in_packages {
+        section == requested_section && reading_packages {
+
             line = $0
 
             if (line ~ /\]/) {
-                in_packages = 0
+                reading_packages = 0
             }
 
             gsub(/[\[\]"]/, "", line)
@@ -374,6 +704,7 @@ cybercats_cckit_read_packages_raw() {
 
             for (i = 1; i <= count; i++) {
                 item = items[i]
+
                 gsub(/^[[:space:]]+/, "", item)
                 gsub(/[[:space:]]+$/, "", item)
 
@@ -382,177 +713,118 @@ cybercats_cckit_read_packages_raw() {
                 }
             }
         }
-        ' "${manifest}"
+        ' "${pack_file}"
 }
 
 
-cybercats_cckit_write_package_list() {
-    local manifest="${1}"
+# =============================================================================
+# Pack writer
+#
+# Rebuilds the pack from its current content.
+# =============================================================================
+
+cybercats_cckit_rewrite_pack() {
+    local pack_file="${1}"
     local section="${2}"
     local operation="${3}"
     local package="${4}"
 
-    local temporary
-    temporary="$(mktemp "${TMPDIR:-/tmp}/cckit.XXXXXX")" || return 1
+    local pack_name
+    pack_name="$(basename "${pack_file}" .toml)"
 
-    local packages=()
+    local formulae=()
+    local casks=()
+
     local existing
 
     while IFS= read -r existing; do
-        [[ -z "${existing}" ]] && continue
+        [[ -n "${existing}" ]] || continue
 
-        if [[ "${operation}" == "remove" && "${existing}" == "${package}" ]]; then
+        if [[ "${section}" == "formulae" &&
+              "${operation}" == "remove" &&
+              "${existing}" == "${package}" ]]
+        then
             continue
         fi
 
-        packages+=("${existing}")
+        formulae+=("${existing}")
     done < <(
-        cybercats_cckit_read_packages_raw "${manifest}" "${section}"
+        cybercats_cckit_read_pack_entries_raw \
+            "${pack_file}" \
+            "formulae"
+    )
+
+    while IFS= read -r existing; do
+        [[ -n "${existing}" ]] || continue
+
+        if [[ "${section}" == "casks" &&
+              "${operation}" == "remove" &&
+              "${existing}" == "${package}" ]]
+        then
+            continue
+        fi
+
+        casks+=("${existing}")
+    done < <(
+        cybercats_cckit_read_pack_entries_raw \
+            "${pack_file}" \
+            "casks"
     )
 
     if [[ "${operation}" == "add" ]]; then
-        packages+=("${package}")
+
+        if [[ "${section}" == "formulae" ]]; then
+            formulae+=("${package}")
+        else
+            casks+=("${package}")
+        fi
+
     fi
 
-    cybercats_cckit_rewrite_manifest_section \
-        "${manifest}" \
-        "${temporary}" \
-        "${section}" \
-        "${packages[@]}"
+    cat > "${pack_file}" <<EOF
+name = "${pack_name}"
+id = "${pack_name}"
 
-    mv "${temporary}" "${manifest}"
+[formulae]
+packages = [
+EOF
+
+    cybercats_cckit_write_toml_array \
+        "${pack_file}" \
+        "${formulae[@]}"
+
+    cat >> "${pack_file}" <<'EOF'
+]
+
+[casks]
+packages = [
+EOF
+
+    cybercats_cckit_write_toml_array \
+        "${pack_file}" \
+        "${casks[@]}"
+
+    cat >> "${pack_file}" <<'EOF'
+]
+EOF
 }
 
 
-cybercats_cckit_rewrite_manifest_section() {
-    local manifest="${1}"
-    local output="${2}"
-    local requested_section="${3}"
-    shift 3
+cybercats_cckit_write_toml_array() {
+    local output="${1}"
+    shift
 
-    local packages=("$@")
+    local values=("$@")
+    local index
+    local count="${#values[@]}"
 
-    awk \
-        -v requested_section="${requested_section}" \
-        -v replacement_file="${output}.packages" \
-        '
-        BEGIN {
-            section = ""
-            skipping_packages = 0
-        }
+    for ((index = 0; index < count; index++)); do
 
-        /^[[:space:]]*\[/ {
-            line = $0
-            clean = line
+        if [[ ${index} -lt $((count - 1)) ]]; then
+            echo "    \"${values[$index]}\"," >> "${output}"
+        else
+            echo "    \"${values[$index]}\"" >> "${output}"
+        fi
 
-            gsub(/^[[:space:]]*\[/, "", clean)
-            gsub(/\][[:space:]]*$/, "", clean)
-
-            section = clean
-            skipping_packages = 0
-
-            print line
-            next
-        }
-
-        section == requested_section &&
-        /^[[:space:]]*packages[[:space:]]*=/ {
-
-            while ((getline replacement < replacement_file) > 0) {
-                print replacement
-            }
-
-            close(replacement_file)
-
-            if ($0 !~ /\]/) {
-                skipping_packages = 1
-            }
-
-            next
-        }
-
-        skipping_packages {
-            if ($0 ~ /\]/) {
-                skipping_packages = 0
-            }
-
-            next
-        }
-
-        {
-            print
-        }
-        ' "${manifest}" > "${output}"
-
-    {
-        echo "packages = ["
-
-        local index
-        local count="${#packages[@]}"
-
-        for ((index = 0; index < count; index++)); do
-            if [[ ${index} -lt $((count - 1)) ]]; then
-                echo "    \"${packages[$index]}\","
-            else
-                echo "    \"${packages[$index]}\""
-            fi
-        done
-
-        echo "]"
-    } > "${output}.packages"
-
-    # Run again now that the replacement content exists.
-    awk \
-        -v requested_section="${requested_section}" \
-        -v replacement_file="${output}.packages" \
-        '
-        BEGIN {
-            section = ""
-            skipping_packages = 0
-        }
-
-        /^[[:space:]]*\[/ {
-            line = $0
-            clean = line
-
-            gsub(/^[[:space:]]*\[/, "", clean)
-            gsub(/\][[:space:]]*$/, "", clean)
-
-            section = clean
-            skipping_packages = 0
-
-            print line
-            next
-        }
-
-        section == requested_section &&
-        /^[[:space:]]*packages[[:space:]]*=/ {
-
-            while ((getline replacement < replacement_file) > 0) {
-                print replacement
-            }
-
-            close(replacement_file)
-
-            if ($0 !~ /\]/) {
-                skipping_packages = 1
-            }
-
-            next
-        }
-
-        skipping_packages {
-            if ($0 ~ /\]/) {
-                skipping_packages = 0
-            }
-
-            next
-        }
-
-        {
-            print
-        }
-        ' "${manifest}" > "${output}"
-
-    rm -f "${output}.packages"
+    done
 }
