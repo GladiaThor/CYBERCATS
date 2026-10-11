@@ -1,7 +1,8 @@
 name = "CCKit"
 id = "cckit"
-version = "1.0.0"
-description = "Install Homebrew packages and organise them into portable CYBERCATS kits."
+version = "1.3.0"
+description = "Install software and CYBERCATS Powers and organise them into portable kits."
+origin = "builtins"
 
 aliases = []
 
@@ -18,16 +19,32 @@ name = "install --cask <cask> [-k <kit>]"
 description = "Install and track a Homebrew cask."
 
 [[commands]]
+name = "install --power <git repository> [-k <kit>]"
+description = "Install and track a CYBERCATS Power."
+
+[[commands]]
 name = "kit <package> -k <kit>"
-description = "Add an already installed package to one or more kits."
+description = "Add an installed Homebrew package to one or more kits."
+
+[[commands]]
+name = "kit --power <power> -k <kit>"
+description = "Add an installed Power to one or more kits."
 
 [[commands]]
 name = "unkit <package> -k <kit>"
 description = "Remove a package from a kit without uninstalling it."
 
 [[commands]]
+name = "unkit --power <power> -k <kit>"
+description = "Remove a Power from a kit without uninstalling it."
+
+[[commands]]
 name = "uninstall <package>"
-description = "Uninstall a package and remove it from all kits."
+description = "Uninstall a Homebrew package and remove it from all kits."
+
+[[commands]]
+name = "uninstall --power <power>"
+description = "Remove a Power and remove it from all kits."
 
 [[commands]]
 name = "kits"
