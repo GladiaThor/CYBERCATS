@@ -226,6 +226,18 @@ cybercats_ccpower_install() {
     # We don't need the Power's Git metadata after installation.
     rm -rf "${source_directory}/.git"
 
+    local installed_manifest="${source_directory}/power.toml"
+
+    # ANd we add the origin to the top so we know where it came from
+    if ! cybercats_ccpower_set_origin \
+        "${installed_manifest}" \
+        "${repository}"
+    then
+        echo "ERROR: Failed to record Power origin."
+        rm -rf "${source_directory}"
+        return 1
+    fi
+
     # -------------------------------------------------------------------------
     # Generate wrapper
     # -------------------------------------------------------------------------
@@ -341,6 +353,50 @@ cybercats_ccpower_list() {
 
 
 # =============================================================================
+# Sets the origin 
+#
+# Adds the gitrepo address for the installed power to the top of the power.toml
+# =============================================================================
+
+cybercats_ccpower_set_origin() {
+    local manifest="${1}"
+    local origin="${2}"
+
+    local temporary
+    temporary="$(mktemp "${TMPDIR:-/tmp}/ccpower-manifest.XXXXXX")" || {
+        echo "ERROR: Unable to create temporary manifest."
+        return 1
+    }
+
+    local escaped_origin="${origin//\\/\\\\}"
+    escaped_origin="${escaped_origin//\"/\\\"}"
+
+    awk \
+        -v origin="${escaped_origin}" \
+        '
+        BEGIN {
+            reached_section = 0
+            print "origin = \"" origin "\""
+        }
+
+        /^[[:space:]]*\[/ {
+            reached_section = 1
+        }
+
+        {
+            if (reached_section == 0 && $0 ~ /^[[:space:]]*origin[[:space:]]*=/) {
+                next
+            }
+
+            print
+        }
+        ' "${manifest}" > "${temporary}"
+
+    mv "${temporary}" "${manifest}"
+}
+
+
+# =============================================================================
 # Wrapper generator
 # =============================================================================
 
@@ -376,6 +432,15 @@ cybercats_ccpower_generate_wrapper() {
         cybercats_ccpower_manifest_value \
             "${manifest}" "" "description"
     )"
+
+    power_origin="$(
+        cybercats_ccpower_manifest_value \
+            "${manifest}" "" "origin"
+    )"
+
+    if [[ -z "${power_origin}" ]]; then
+        power_origin="unknown"
+    fi
 
     entrypoint_file="$(
         cybercats_ccpower_manifest_value \
@@ -443,6 +508,11 @@ POWER_HELP
 
         --source)
             echo "${source_directory}"
+            return 0
+            ;;
+
+        --origin)
+            echo "${power_origin}"
             return 0
             ;;
 

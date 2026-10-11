@@ -317,6 +317,10 @@ for POWER in "${BUILTIN_POWERS[@]}"; do
     fi
 
     echo "Generating wrapper for ${POWER}."
+    
+    cybercats_ccpower_set_origin \
+        "${POWER_MANIFEST}" \
+        "builtins"
 
     cybercats_ccpower_generate_wrapper \
         "${POWER_MANIFEST}" \
