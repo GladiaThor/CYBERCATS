@@ -1,7 +1,7 @@
 name = "CCKit"
 id = "cckit"
 version = "1.0.0"
-description = "Install Homebrew software and organise it into portable CYBERCATS packs."
+description = "Install Homebrew packages and organise them into portable CYBERCATS kits."
 
 aliases = []
 
@@ -10,32 +10,32 @@ file = "cckit.sh"
 function = "cybercats_cckit"
 
 [[commands]]
-name = "install <formula> [-p <pack>]"
+name = "install <formula> [-k <kit>]"
 description = "Install and track a Homebrew formula."
 
 [[commands]]
-name = "install --cask <cask> [-p <pack>]"
+name = "install --cask <cask> [-k <kit>]"
 description = "Install and track a Homebrew cask."
 
 [[commands]]
-name = "pack <package> -p <pack>"
-description = "Add an already installed package to one or more packs."
+name = "kit <package> -k <kit>"
+description = "Add an already installed package to one or more kits."
 
 [[commands]]
-name = "unpack <package> -p <pack>"
-description = "Remove a package from a pack without uninstalling it."
+name = "unkit <package> -k <kit>"
+description = "Remove a package from a kit without uninstalling it."
 
 [[commands]]
 name = "uninstall <package>"
-description = "Uninstall a package and remove it from all packs."
+description = "Uninstall a package and remove it from all kits."
 
 [[commands]]
-name = "packs"
-description = "List available CCKit packs."
+name = "kits"
+description = "List available CCKit kits."
 
 [[commands]]
-name = "show <pack>"
-description = "Show the contents of a pack."
+name = "show <kit>"
+description = "Show the contents of a kit."
 
 [[commands]]
 name = "search <query>"
