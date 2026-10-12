@@ -4,12 +4,11 @@ set -euo pipefail
 
 
 # =============================================================================
-# Cybercats Ghostty Installer v 1.0
+# CYBERCATS Ghostty Installer v 1.0
 #
-# This installs Ghostty and BlexMono Nerd Font.
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2017-2026 Thor K Salehi
 # =============================================================================
-
-
 
 install_ghostty() {
     command -v brew >/dev/null 2>&1 ||
@@ -18,7 +17,7 @@ install_ghostty() {
     if [[ ! -d /Applications/Ghostty.app ]] &&
        ! brew list --cask ghostty &>/dev/null; then
         echo "Installing Ghostty..."
-        # brew install --cask ghostty
+        brew install --cask ghostty
         echo "✓ Ghostty installed."
     else
         echo "Ghostty already installed."

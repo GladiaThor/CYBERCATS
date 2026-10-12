@@ -51,7 +51,7 @@ CYBERCATS aims to provide a consistent toolchain across operating systems, using
 Clone the CYBERCATS repository and run its installer:
 
 ```bash
-git clone https://github.com/GladiaThor/CYBERCATS
+git clone git@github.com:GladiaThor/CYBERCATS
 cd <repository-directory>
 bash install.sh
 ```
@@ -159,3 +159,13 @@ Contributions, experiments and sensible improvements are always welcome.
 ## TL;DR
 
 Your development environment should be the one part of your working day that behaves exactly the way you expect it to, no matter which computer you happen to turn on that day. This helps with that.
+
+
+## Licence
+
+Copyright (C) 2017-2026 Thor K Salehi.
+
+CYBERCATS is free software, licensed under the GNU General Public License
+version 3.0 (GPL-3.0-only).
+
+See [LICENSE](LICENSE) for the full licence terms.

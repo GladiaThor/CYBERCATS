@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
+
+# =============================================================================
+# CYBERCATS installer main script
+#
+#
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2017-2026 Thor K Salehi
+# =============================================================================
+
+
+
 export CC_ROOT="$HOME/.cybercats"
 
 
@@ -225,7 +235,7 @@ for TOOL_ENTRY in "${CORE_TOOLS[@]}"; do
     fi
 
     echo "Installing ${FORMULA}..."
-    # brew install "${FORMULA}"
+    brew install "${FORMULA}"
 
     if ! brew list --formula "${FORMULA}" >/dev/null 2>&1; then
         echo "ERROR: ${FORMULA} failed to install."
@@ -273,7 +283,7 @@ for TOOL in "${ZSH_UTILS[@]}"; do
     fi
 
     echo "Installing ${TOOL}..."
-    # brew install "${TOOL}"
+    brew install "${TOOL}"
 
     if brew list --formula "${TOOL}" >/dev/null 2>&1; then
         echo "✓ ${TOOL} installed."
@@ -346,7 +356,7 @@ bash "$REPO_DIR/install-scripts/install-ghostty.sh"
 
 if ! brew list --cask "$FONT_CASK" &>/dev/null; then
     echo "Installing $FONT_CASK..."
-    # brew install --cask "$FONT_CASK"
+    brew install --cask "$FONT_CASK"
     echo "✓ $FONT_CASK installed."
 else
     echo "Font already installed through Homebrew."
