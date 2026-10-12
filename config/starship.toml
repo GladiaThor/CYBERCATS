@@ -1,0 +1,57 @@
+format = """
+[┌─](bold #7dcfff)  $username$hostname $directory$git_branch$git_status$fill$time
+[└─](bold #f5a9d0)$character
+"""
+
+palette = "cybercat"
+
+[palettes.cybercat]
+rose = "#f5a9d0"
+pink = "#ff9ed8"
+lavender = "#cba6f7"
+mauve = "#d9b3ff"
+sky = "#89dceb"
+cyan = "#7dcfff"
+mint = "#a6e3a1"
+peach = "#fab387"
+yellow = "#f9e2af"
+text = "#d9e0ee"
+subtle = "#6c7086"
+bg = "#1a1b26"
+
+[username]
+show_always = true
+style_user = "bold rose"
+style_root = "bold peach"
+format = "[$user](fg:rose)"
+
+[hostname]
+ssh_only = false
+format = "[@$hostname](fg:mauve)"
+
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+read_only = " 󰌾"
+format = "[  $path](fg:sky)[$read_only](fg:peach)"
+
+[git_branch]
+symbol = " "
+format = " [git:](fg:subtle)[$symbol$branch](fg:mint)"
+
+[git_status]
+format = "([ $all_status$ahead_behind](fg:yellow))"
+
+[fill]
+symbol = " "
+
+[time]
+disabled = false
+time_format = "%H:%M"
+format = "[󰥔 $time](fg:lavender)"
+
+
+[character]
+success_symbol = "[ ❯](bold #ff9ed8)"
+error_symbol = "[ERROR ❯](bold #fab387)"
+vicmd_symbol = "[ ❮](bold #89dceb)"

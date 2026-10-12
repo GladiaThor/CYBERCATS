@@ -1,0 +1,41 @@
+
+# Cybercats Ghostty Configuration
+
+# Typography
+font-family = BlexMono Nerd Font Mono
+font-size = 13
+
+# Window
+window-padding-x = 12
+window-padding-y = 10
+
+# Cursor
+cursor-style = block
+cursor-style-blink = false
+
+# Clipboard
+copy-on-select = clipboard
+
+# Cybercats Palette
+background = #1e1e2e
+foreground = #d9e0ee
+cursor-color = #f5a9d0
+selection-background = #45475a
+selection-foreground = #d9e0ee
+
+palette = 0=#45475a
+palette = 1=#f38ba8
+palette = 2=#a6e3a1
+palette = 3=#f9e2af
+palette = 4=#7dcfff
+palette = 5=#cbA6f7
+palette = 6=#89dceb
+palette = 7=#bac2de
+palette = 8=#6c7086
+palette = 9=#f5a9d0
+palette = 10=#a6e3a1
+palette = 11=#f9e2af
+palette = 12=#7dcfff
+palette = 13=#d9b3ff
+palette = 14=#89dceb
+palette = 15=#d9e0ee

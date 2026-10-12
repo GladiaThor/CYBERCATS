@@ -62,8 +62,8 @@ FILES_TO_INSTALL=(
 )
 
 DIRECTORIES_TO_INSTALL=(
-    ".config"
-    ".cybercats"
+    "config"
+    "cybercats"
 )
 
 
@@ -90,7 +90,7 @@ BUILTIN_POWERS=(
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-CCARCHIVIST_SOURCE="${REPO_DIR}/.cybercats/powers/src/ccarchivist/ccarchivist.sh"
+CCARCHIVIST_SOURCE="${REPO_DIR}/cybercats/powers/src/ccarchivist/ccarchivist.sh"
 
 source "${CCARCHIVIST_SOURCE}"
 
@@ -147,7 +147,7 @@ for FILE in "${FILES_TO_INSTALL[@]}"; do
 done
 
 for DIRECTORY in "${DIRECTORIES_TO_INSTALL[@]}"; do
-    ARCHIVE_SOURCES+=("${HOME}/${DIRECTORY}")
+    ARCHIVE_SOURCES+=("${HOME}/.${DIRECTORY}")
 done
 
 cybercats_ccarchivist \
@@ -191,7 +191,7 @@ echo "Installing configurations and powers."
 for DIRECTORY in "${DIRECTORIES_TO_INSTALL[@]}"; do
 
     SOURCE="${REPO_DIR}/${DIRECTORY}"
-    DESTINATION="${HOME}/${DIRECTORY}"
+    DESTINATION="${HOME}/.${DIRECTORY}"
 
     if [[ ! -d "${SOURCE}" ]]; then
         echo "ERROR: Expected repository directory does not exist:"
