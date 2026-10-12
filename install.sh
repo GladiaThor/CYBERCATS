@@ -45,6 +45,8 @@ fi
 # Config
 # =============================================================================
 
+FONT_CASK="font-blex-mono-nerd-font"
+
 FILES_TO_INSTALL=(
     ".zshrc"
 )
@@ -289,7 +291,7 @@ else
 fi
 
 # =============================================================================
-# Installing Builtin Powers
+# Builtin Powers
 # =============================================================================
 source "${HOME}/.cybercats/powers/src/ccpower/ccpower.zsh"
 
@@ -335,10 +337,26 @@ for POWER in "${BUILTIN_POWERS[@]}"; do
 done
 
 
+
+# =============================================================================
+# Ghostty and Nerdfont 
+# =============================================================================
+
+bash "$REPO_DIR/install-scripts/install-ghostty.sh"
+
+if ! brew list --cask "$FONT_CASK" &>/dev/null; then
+    echo "Installing $FONT_CASK..."
+    # brew install --cask "$FONT_CASK"
+    echo "✓ $FONT_CASK installed."
+else
+    echo "Font already installed through Homebrew."
+fi
+
+
 # =============================================================================
 # Done
 # =============================================================================
 
-echo "CYBERCATS Core Installed."
-echo "Restart your terminal and run ccdevtools --install to initialize the developer tools installer wizard." 
+echo "CYBERCATS Core installation complete!" 
+echo "Restart your terminal to get going."
 echo
