@@ -1,0 +1,9 @@
+
+id = "ccupdate"
+name = "Cybercats Update"
+version = "1.0.0"
+description = "Update Cybercats core and builtin powers"
+
+[entrypoint]
+file = "ccupdate.zsh"
+function = "ccupdate"
