@@ -12,6 +12,7 @@ set -euo pipefail
 
 
 export CC_ROOT="$HOME/.cybercats"
+export CONFIG_ROOT="$HOME/.config"
 
 
 SKIP_TOOLS=false
@@ -73,6 +74,7 @@ CORE_TOOLS=(
     "starship:starship"
     "ripgrep:rg"
     "fzf:fzf"
+    "coreutils:coreutils"
 )
 
 
@@ -124,7 +126,6 @@ for DIRECTORY in "${DIRECTORIES_TO_INSTALL[@]}"; do
 done
 
 echo "✓ Installation files validated."
-echo
 
 
 # =============================================================================
@@ -138,7 +139,6 @@ echo "Fixing shell script permissions."
 
 
 echo "Archiving existing configuration to ${BACKUP_ROOT}"
-echo
 
 ARCHIVE_SOURCES=()
 
@@ -154,8 +154,6 @@ cybercats_ccarchivist \
     --archive \
     "${BACKUP_ROOT}" \
     "${ARCHIVE_SOURCES[@]}"
-
-echo
 
 
 # =============================================================================
@@ -180,7 +178,6 @@ for FILE in "${FILES_TO_INSTALL[@]}"; do
     cp "${SOURCE}" "${DESTINATION}"
 done
 
-echo
 
 # =============================================================================
 # Directories, dotfiles, and powers. 
@@ -204,7 +201,6 @@ for DIRECTORY in "${DIRECTORIES_TO_INSTALL[@]}"; do
     cp -R "${SOURCE}" "${DESTINATION}"
 done
 
-echo
 
 # =============================================================================
 # Terminal Tools
@@ -246,6 +242,7 @@ for TOOL_ENTRY in "${CORE_TOOLS[@]}"; do
 
     echo "✓ ${FORMULA} installed."
 
+
     if [[ "${RESOLVED_PATH}" == "${BREW_PREFIX}"/* ]]; then
         echo "✓ ${COMMAND} -> ${RESOLVED_PATH}"
 
@@ -274,8 +271,14 @@ fi
 # =============================================================================
 if [[ "${SKIP_ZSH_UTILS}" == false ]]; then
 
-echo "Installing zsh utils."
+UTIL_CONFIG_FILE="${CONFIG_ROOT}/cybercats/zsh-utils-loader.zsh"
 
+if [ ! -f "${UTIL_CONFIG_FILE}" ]; then
+    echo "Creating zsh utils loader."
+    mkdir -p "$(dirname "${UTIL_CONFIG_FILE}")" && touch "${UTIL_CONFIG_FILE}" && echo "# CYBERCATS ZSH Utils Loader" >> "${UTIL_CONFIG_FILE}"
+fi
+
+echo "Installing zsh utils."
 for TOOL in "${ZSH_UTILS[@]}"; do
     if brew list --formula "${TOOL}" >/dev/null 2>&1; then
         echo "✓ ${TOOL} is already installed."
@@ -286,18 +289,17 @@ for TOOL in "${ZSH_UTILS[@]}"; do
     brew install "${TOOL}"
 
     if brew list --formula "${TOOL}" >/dev/null 2>&1; then
+        echo "source $(brew list --formula "${TOOL}" | grep -Ei "${TOOL}\.zsh")" >> "${UTIL_CONFIG_FILE}"
         echo "✓ ${TOOL} installed."
     else
         echo "ERROR: ${TOOL} failed to install."
     fi
 done
-echo
+
 echo "ZSH utils installed."
-echo
 
 else
     echo "Skipping Zsh utilities."
-    echo
 fi
 
 # =============================================================================
@@ -369,4 +371,3 @@ fi
 
 echo "CYBERCATS Core installation complete!" 
 echo "Restart your terminal to get going."
-echo

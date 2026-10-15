@@ -2,6 +2,8 @@ ZSH_CONFIG_DIR=${CC_ROOT}/general
 ZSH_VISUAL_CONFIG_DIR=${CC_ROOT}/visual
 ZSH_POWERS_DIR=${CC_ROOT}/powers
 ZSH_PATHS_PATH=${CC_ROOT}/default_paths.zsh
+CONFIG_ROOT=${HOME}/.config
+CC_ZSH_UTIL_LOADER=${CONFIG_ROOT}/cybercats/zsh-utils-loader.zsh
 
 ZSH_PALETTE_PATH=${ZSH_VISUAL_CONFIG_DIR}/colour_palette.zsh
 ZSH_ALIAS_PATH=${ZSH_CONFIG_DIR}/alias.zsh
@@ -14,5 +16,6 @@ PROJECTS_DIR=${HOME}/docs/repos
 MARKLN_DIR=${PROJECTS_DIR}/tools/markln
 HEADER_ART_DIR=${ZSH_VISUAL_CONFIG_DIR}/default_header_art
 ZSH_HISTORY_FILE_PATH=${CC_ROOT}/local/zsh_history
+
 
 CC_TEXT_EDITOR=nvim

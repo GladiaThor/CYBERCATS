@@ -66,8 +66,7 @@ tmux_quick_vertical() {
 
 
 # External Goodies
-source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source ${CC_ZSH_UTIL_LOADER}
 
 # Starship Config
 eval "$(starship init zsh)"

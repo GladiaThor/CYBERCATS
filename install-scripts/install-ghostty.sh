@@ -13,21 +13,13 @@ set -euo pipefail
 install_ghostty() {
     command -v brew >/dev/null 2>&1 ||
         fail "Homebrew is required. Run the Cybercats Homebrew setup first."
-
-    if [[ ! -d /Applications/Ghostty.app ]] &&
-       ! brew list --cask ghostty &>/dev/null; then
         echo "Installing Ghostty..."
         brew install --cask ghostty
         echo "✓ Ghostty installed."
-    else
-        echo "Ghostty already installed."
-    fi
-
 
 }
 
-
-main() {
+prompt_user() {
     echo "Cybercats is tested and built for Ghostty (https://ghostty.org/).";
     local prompt="${1:-Would you like to install Ghostty terminal emulator?}"
     local answer
@@ -49,7 +41,16 @@ main() {
             *) "Please answer yes or no." ;;
         esac
     done
-    
+}
+
+main() {
+
+    if [[ ! -d /Applications/Ghostty.app ]] &&
+       ! brew list --cask ghostty &>/dev/null; then
+        prompt_user
+    else
+        echo "Ghostty already installed."
+    fi
 
 }
 
